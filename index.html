@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>لوحة تحكم التفعيل</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap');
+
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --card: #16161f;
+    --border: #2a2a3a;
+    --accent: #6c63ff;
+    --accent2: #ff6584;
+    --green: #00e676;
+    --orange: #ffab40;
+    --red: #ff5252;
+    --text: #e8e8f0;
+    --muted: #7070a0;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Cairo', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* ─── Login Screen ─── */
+  #login-screen {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background: radial-gradient(ellipse at 50% 0%, #1a1040 0%, var(--bg) 70%);
+  }
+
+  .login-box {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 48px;
+    width: 380px;
+    text-align: center;
+  }
+
+  .login-box .logo {
+    font-size: 48px;
+    margin-bottom: 8px;
+  }
+
+  .login-box h1 {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .login-box p { color: var(--muted); margin-bottom: 32px; font-size: 14px; }
+
+  input {
+    width: 100%;
+    padding: 14px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-family: 'Cairo', sans-serif;
+    font-size: 15px;
+    margin-bottom: 12px;
+    direction: ltr;
+    transition: border-color 0.2s;
+  }
+
+  input:focus { outline: none; border-color: var(--accent); }
+
+  .btn {
+    padding: 14px 24px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-family: 'Cairo', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    transition: all 0.2s;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent), #4a43cc);
+    color: white;
+    width: 100%;
+  }
+
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(108,99,255,0.4); }
+
+  .btn-sm { padding: 7px 14px; font-size: 13px; border-radius: 8px; }
+  .btn-green { background: rgba(0,230,118,0.15); color: var(--green); border: 1px solid rgba(0,230,118,0.3); }
+  .btn-red { background: rgba(255,82,82,0.15); color: var(--red); border: 1px solid rgba(255,82,82,0.3); }
+  .btn-orange { background: rgba(255,171,64,0.15); color: var(--orange); border: 1px solid rgba(255,171,64,0.3); }
+  .btn-purple { background: rgba(108,99,255,0.15); color: var(--accent); border: 1px solid rgba(108,99,255,0.3); }
+
+  .btn:hover { filter: brightness(1.2); }
+
+  /* ─── Main App ─── */
+  #app { display: none; }
+
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  header .brand { display: flex; align-items: center; gap: 12px; }
+  header .brand span { font-size: 28px; }
+  header .brand h2 { font-size: 18px; font-weight: 700; }
+
+  .logout-btn {
+    background: rgba(255,82,82,0.1);
+    color: var(--red);
+    border: 1px solid rgba(255,82,82,0.2);
+    padding: 8px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: 'Cairo', sans-serif;
+    font-size: 14px;
+  }
+
+  .container { max-width: 1200px; margin: 0 auto; padding: 32px 24px; }
+
+  /* ─── Stats ─── */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+
+  .stat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    text-align: center;
+  }
+
+  .stat-card .num {
+    font-size: 40px;
+    font-weight: 900;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .stat-card .label { color: var(--muted); font-size: 13px; }
+
+  /* ─── Generate Panel ─── */
+  .gen-panel {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 24px;
+  }
+
+  .gen-panel h3 { font-size: 16px; font-weight: 700; margin-bottom: 16px; }
+
+  .gen-form {
+    display: flex;
+    gap: 12px;
+    align-items: flex-end;
+    flex-wrap: wrap;
+  }
+
+  .gen-form .field { display: flex; flex-direction: column; gap: 6px; }
+  .gen-form label { font-size: 13px; color: var(--muted); }
+
+  .gen-form input, .gen-form select {
+    margin-bottom: 0;
+    width: auto;
+    min-width: 120px;
+  }
+
+  select {
+    padding: 14px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-family: 'Cairo', sans-serif;
+    font-size: 15px;
+    cursor: pointer;
+  }
+
+  /* ─── Keys Table ─── */
+  .table-panel {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+
+  .table-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .table-header h3 { font-size: 16px; font-weight: 700; }
+
+  .filters { display: flex; gap: 8px; }
+
+  .filter-btn {
+    padding: 7px 16px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    font-family: 'Cairo', sans-serif;
+    font-size: 13px;
+    transition: all 0.2s;
+  }
+
+  .filter-btn.active {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+  }
+
+  table { width: 100%; border-collapse: collapse; }
+
+  th {
+    padding: 12px 16px;
+    text-align: right;
+    font-size: 12px;
+    color: var(--muted);
+    font-weight: 600;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  td {
+    padding: 14px 16px;
+    font-size: 14px;
+    border-bottom: 1px solid rgba(42,42,58,0.5);
+    vertical-align: middle;
+  }
+
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(108,99,255,0.04); }
+
+  .key-text {
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    color: var(--accent);
+    cursor: pointer;
+    letter-spacing: 1px;
+  }
+
+  .key-text:hover { text-decoration: underline; }
+
+  .badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .badge-active { background: rgba(0,230,118,0.15); color: var(--green); }
+  .badge-pending { background: rgba(255,171,64,0.15); color: var(--orange); }
+  .badge-disabled { background: rgba(255,82,82,0.15); color: var(--red); }
+
+  .actions { display: flex; gap: 6px; flex-wrap: wrap; }
+
+  .empty {
+    text-align: center;
+    padding: 60px;
+    color: var(--muted);
+  }
+
+  .empty .icon { font-size: 48px; margin-bottom: 12px; }
+
+  /* ─── Generated Keys Modal ─── */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .modal-overlay.show { display: flex; }
+
+  .modal {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 32px;
+    width: 500px;
+    max-width: 90vw;
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+
+  .modal h3 { font-size: 18px; font-weight: 700; margin-bottom: 20px; }
+
+  .key-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+
+  .key-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-family: monospace;
+    font-size: 15px;
+    color: var(--accent);
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 1px;
+  }
+
+  .key-item:hover { background: rgba(108,99,255,0.1); border-color: var(--accent); }
+
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 24px;
+    font-size: 14px;
+    font-weight: 600;
+    transition: transform 0.3s;
+    z-index: 999;
+  }
+
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  @media (max-width: 768px) {
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .gen-form { flex-direction: column; }
+    .gen-form input, .gen-form select { width: 100%; }
+    table { font-size: 12px; }
+    td, th { padding: 10px 8px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Login -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="logo">🔐</div>
+    <h1>لوحة التحكم</h1>
+    <p>نظام إدارة مفاتيح التفعيل</p>
+    <input type="password" id="secret-input" placeholder="كلمة السر..." />
+    <button class="btn btn-primary" onclick="doLogin()">دخول</button>
+  </div>
+</div>
+
+<!-- App -->
+<div id="app">
+  <header>
+    <div class="brand">
+      <span>🔑</span>
+      <h2>نظام التفعيل</h2>
+    </div>
+    <button class="logout-btn" onclick="logout()">خروج</button>
+  </header>
+
+  <div class="container">
+    <!-- Stats -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="num" id="stat-total" style="color:#6c63ff">0</div>
+        <div class="label">إجمالي المفاتيح</div>
+      </div>
+      <div class="stat-card">
+        <div class="num" id="stat-active" style="color:#00e676">0</div>
+        <div class="label">مفعّل</div>
+      </div>
+      <div class="stat-card">
+        <div class="num" id="stat-pending" style="color:#ffab40">0</div>
+        <div class="label">في الانتظار</div>
+      </div>
+      <div class="stat-card">
+        <div class="num" id="stat-disabled" style="color:#ff5252">0</div>
+        <div class="label">معطّل</div>
+      </div>
+    </div>
+
+    <!-- Generate -->
+    <div class="gen-panel">
+      <h3>⚡ توليد مفاتيح جديدة</h3>
+      <div class="gen-form">
+        <div class="field">
+          <label>عدد المفاتيح</label>
+          <input type="number" id="gen-count" value="1" min="1" max="100" style="width:120px">
+        </div>
+        <div class="field">
+          <label>الباقة</label>
+          <select id="gen-plan">
+            <option value="basic">أساسي</option>
+            <option value="pro">برو</option>
+            <option value="lifetime">مدى الحياة</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>مدة الصلاحية (أيام)</label>
+          <input type="number" id="gen-days" placeholder="بلا حد" min="1" style="width:150px">
+        </div>
+        <button class="btn btn-primary" onclick="generateKeys()">توليد 🎲</button>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="table-panel">
+      <div class="table-header">
+        <h3>📋 المفاتيح</h3>
+        <div class="filters">
+          <button class="filter-btn active" onclick="setFilter('all', this)">الكل</button>
+          <button class="filter-btn" onclick="setFilter('active', this)">مفعّل</button>
+          <button class="filter-btn" onclick="setFilter('pending', this)">انتظار</button>
+          <button class="filter-btn" onclick="setFilter('disabled', this)">معطّل</button>
+        </div>
+      </div>
+      <div style="overflow-x:auto">
+        <table>
+          <thead>
+            <tr>
+              <th>المفتاح</th>
+              <th>الحالة</th>
+              <th>الباقة</th>
+              <th>الجهاز</th>
+              <th>الانتهاء</th>
+              <th>الإجراءات</th>
+            </tr>
+          </thead>
+          <tbody id="keys-table"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <h3>🎉 المفاتيح الجديدة</h3>
+    <p style="color:var(--muted);font-size:13px;margin-bottom:16px">انقر على أي مفتاح لنسخه</p>
+    <div class="key-list" id="modal-keys"></div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-primary" onclick="copyAll()" style="flex:1">نسخ الكل</button>
+      <button class="btn" style="background:var(--surface);border:1px solid var(--border);color:var(--muted)" onclick="closeModal()">إغلاق</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+let adminSecret = '';
+let allKeys = [];
+let currentFilter = 'all';
+
+function doLogin() {
+  adminSecret = document.getElementById('secret-input').value;
+  if (!adminSecret) return;
+  loadAll();
+}
+
+function logout() {
+  adminSecret = '';
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+}
+
+async function api(path, method = 'GET', body = null) {
+  const opts = {
+    method,
+    headers: { 'Content-Type': 'application/json', 'x-admin-secret': adminSecret }
+  };
+  if (body) opts.body = JSON.stringify(body);
+  const r = await fetch(path, opts);
+  return r.json();
+}
+
+async function loadAll() {
+  const stats = await api('/api/admin/stats');
+  if (!stats.success) { showToast('كلمة السر خاطئة ❌'); return; }
+
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+
+  document.getElementById('stat-total').textContent = stats.stats.total;
+  document.getElementById('stat-active').textContent = stats.stats.active;
+  document.getElementById('stat-pending').textContent = stats.stats.pending;
+  document.getElementById('stat-disabled').textContent = stats.stats.disabled;
+
+  const keys = await api('/api/admin/keys');
+  allKeys = keys.keys || [];
+  renderTable();
+}
+
+function setFilter(f, btn) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderTable();
+}
+
+function renderTable() {
+  const filtered = currentFilter === 'all'
+    ? allKeys
+    : allKeys.filter(k => k.status === currentFilter);
+
+  const tbody = document.getElementById('keys-table');
+  if (!filtered.length) {
+    tbody.innerHTML = `<tr><td colspan="6"><div class="empty"><div class="icon">🔍</div>لا توجد مفاتيح</div></td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = filtered.map(k => {
+    const exp = k.expires_at ? new Date(k.expires_at).toLocaleDateString('ar') : 'بلا حد';
+    const dev = k.device_id ? k.device_id.substring(0, 12) + '...' : '—';
+    const planAr = { basic: 'أساسي', pro: 'برو', lifetime: 'مدى الحياة' }[k.plan] || k.plan;
+    const isActive = k.status === 'active';
+
+    return `<tr>
+      <td><span class="key-text" onclick="copy('${k.key}')" title="انقر للنسخ">${k.key}</span></td>
+      <td><span class="badge badge-${k.status}">${
+        { active: 'مفعّل', pending: 'انتظار', disabled: 'معطّل' }[k.status]
+      }</span></td>
+      <td>${planAr}</td>
+      <td style="color:var(--muted);font-size:12px">${dev}</td>
+      <td style="color:var(--muted);font-size:12px">${exp}</td>
+      <td><div class="actions">
+        ${isActive
+          ? `<button class="btn btn-sm btn-red" onclick="disableKey('${k.key}')">تعطيل</button>`
+          : `<button class="btn btn-sm btn-green" onclick="enableKey('${k.key}')">تفعيل</button>`}
+        <button class="btn btn-sm btn-orange" onclick="resetDevice('${k.key}')">ضبط جهاز</button>
+        <button class="btn btn-sm btn-red" onclick="deleteKey('${k.key}')">حذف</button>
+      </div></td>
+    </tr>`;
+  }).join('');
+}
+
+async function generateKeys() {
+  const count = parseInt(document.getElementById('gen-count').value) || 1;
+  const plan = document.getElementById('gen-plan').value;
+  const days = document.getElementById('gen-days').value || null;
+
+  const r = await api('/api/admin/generate', 'POST', { count, plan, days: days ? parseInt(days) : null });
+  if (!r.success) return;
+
+  const list = document.getElementById('modal-keys');
+  list.innerHTML = r.keys.map(k => `<div class="key-item" onclick="copy('${k}')">${k}</div>`).join('');
+  document.getElementById('modal').classList.add('show');
+  loadAll();
+}
+
+async function disableKey(key) {
+  await api('/api/admin/disable', 'POST', { key });
+  showToast('تم تعطيل الكود 🚫');
+  loadAll();
+}
+
+async function enableKey(key) {
+  await api('/api/admin/enable', 'POST', { key });
+  showToast('تم تفعيل الكود ✅');
+  loadAll();
+}
+
+async function resetDevice(key) {
+  if (!confirm('هل تريد إعادة ضبط الجهاز؟')) return;
+  await api('/api/admin/reset-device', 'POST', { key });
+  showToast('تم إعادة ضبط الجهاز 🔄');
+  loadAll();
+}
+
+async function deleteKey(key) {
+  if (!confirm('هل تريد حذف هذا الكود نهائياً؟')) return;
+  await api('/api/admin/delete', 'POST', { key });
+  showToast('تم الحذف 🗑️');
+  loadAll();
+}
+
+function copy(text) {
+  navigator.clipboard.writeText(text);
+  showToast('تم النسخ 📋');
+}
+
+function copyAll() {
+  const keys = document.querySelectorAll('.key-item');
+  const text = Array.from(keys).map(k => k.textContent.trim()).join('\n');
+  navigator.clipboard.writeText(text);
+  showToast('تم نسخ الكل 📋');
+}
+
+function closeModal() { document.getElementById('modal').classList.remove('show'); }
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+document.getElementById('secret-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') doLogin();
+});
+</script>
+</body>
+</html>
