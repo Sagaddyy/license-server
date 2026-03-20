@@ -5,7 +5,7 @@ const path = require("path");
 
 const app = express();
 app.use(express.json());
-app.use(express.static(path.join(__dirname, "public")));
+app.use(express.static(__dirname));
 
 // ── Supabase ──────────────────────────────────────────────
 const supabase = createClient(
@@ -27,6 +27,11 @@ function adminGuard(req, res, next) {
     return res.status(403).json({ success: false, message: "غير مصرح" });
   next();
 }
+
+// ── Home ──────────────────────────────────────────────────
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "index.html"));
+});
 
 // ═══════════════════════════════════════════════════════════
 //  PUBLIC ENDPOINTS  (يستخدمها التطبيق APK)
