@@ -5,6 +5,7 @@ const path = require("path");
 
 const app = express();
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(express.static(__dirname));
 
 // ── Supabase ──────────────────────────────────────────────
@@ -50,13 +51,14 @@ app.get("/", (req, res) => {
 //  PUBLIC ENDPOINTS  (يستخدمها التطبيق APK)
 // ═══════════════════════════════════════════════════════════
 
-// ✅ تسجيل الدخول بـ UserId + Password
+// ✅ تفعيل الكود - يستقبل JSON أو Form Data
 app.post("/api/activate", async (req, res) => {
-  const username = req.body.UserId || req.body.username || req.body.key;
-  const password = req.body.Password || req.body.password;
-  const device_id = req.body.device_id || req.body.hwid || "unknown";
+  // يدعم: {"key":"..."} أو {"user_key":"..."} أو game=PUBG&user_key=...&serial=...
+  const username = req.body.key || req.body.user_key || req.body.UserId || req.body.username;
+  const password = req.body.password || req.body.Password;
+  const device_id = req.body.device_id || req.body.serial || req.body.hwid || "unknown";
 
-  if (!username || !password)
+  if (!username)
     return res.status(400).json({ success: false, message: "البيانات ناقصة" });
 
   const { data, error } = await supabase
@@ -66,9 +68,10 @@ app.post("/api/activate", async (req, res) => {
     .single();
 
   if (error || !data)
-    return res.json({ success: false, message: "اسم المستخدم غير صحيح" });
+    return res.json({ success: false, message: "الكود غير صحيح" });
 
-  if (data.password !== password)
+  // إذا فيه password في الطلب نتحقق منه، وإلا نتجاوزه
+  if (password && data.password && data.password !== password)
     return res.json({ success: false, message: "كلمة المرور غير صحيحة" });
 
   if (data.status === "disabled")
