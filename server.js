@@ -17,12 +17,11 @@ const supabase = createClient(
 const ADMIN_SECRET = process.env.ADMIN_SECRET || "admin123";
 
 // ── Helpers ───────────────────────────────────────────────
-function generateKey() {
+function generateCode() {
   const seg = () => crypto.randomBytes(3).toString("hex").toUpperCase();
   return `${seg()}-${seg()}-${seg()}-${seg()}`;
 }
 
-// تحويل التاريخ من 2025-12-31T00:00:00.000Z إلى 2025-12-31 23:59:59
 function formatDate(isoDate) {
   if (!isoDate) return null;
   const d = new Date(isoDate);
@@ -51,74 +50,68 @@ app.get("/", (req, res) => {
 //  PUBLIC ENDPOINTS  (يستخدمها التطبيق APK)
 // ═══════════════════════════════════════════════════════════
 
-// ✅ تفعيل الكود - يستقبل JSON أو Form Data
+// ✅ تفعيل الكود
 app.post("/api/activate", async (req, res) => {
-  // يدعم: {"key":"..."} أو {"user_key":"..."} أو game=PUBG&user_key=...&serial=...
-  const username = req.body.key || req.body.user_key || req.body.UserId || req.body.username;
-  const password = req.body.password || req.body.Password;
-  const device_id = req.body.device_id || req.body.serial || req.body.hwid || "unknown";
+  const code = req.body.code || req.body.key || req.body.license || req.body.serial;
+  const device_id = req.body.device_id || req.body.hwid || req.body.deviceId || "unknown";
 
-  if (!username)
-    return res.status(400).json({ success: false, message: "البيانات ناقصة" });
+  if (!code)
+    return res.status(400).json({ success: false, message: "الكود مطلوب" });
 
   const { data, error } = await supabase
     .from("licenses")
     .select("*")
-    .eq("username", username)
+    .eq("code", code.trim().toUpperCase())
     .single();
 
   if (error || !data)
     return res.json({ success: false, message: "الكود غير صحيح" });
 
-  // إذا فيه password في الطلب نتحقق منه، وإلا نتجاوزه
-  if (password && data.password && data.password !== password)
-    return res.json({ success: false, message: "كلمة المرور غير صحيحة" });
-
   if (data.status === "disabled")
-    return res.json({ success: false, message: "الحساب معطل" });
+    return res.json({ success: false, message: "الكود معطل" });
 
   if (data.expires_at && new Date(data.expires_at) < new Date())
-    return res.json({ success: false, message: "انتهت صلاحية الحساب" });
+    return res.json({ success: false, message: "انتهت صلاحية الكود" });
 
   if (data.device_id && data.device_id !== device_id)
-    return res.json({ success: false, message: "الحساب مستخدم على جهاز آخر" });
+    return res.json({ success: false, message: "الكود مستخدم على جهاز آخر" });
 
   // ربط الجهاز أول مرة
   if (!data.device_id) {
     await supabase
       .from("licenses")
-      .update({ device_id, activated_at: new Date().toISOString() })
-      .eq("username", username);
+      .update({ device_id, activated_at: new Date().toISOString(), status: "active" })
+      .eq("code", code.trim().toUpperCase());
   }
 
   return res.json({
     success: true,
-    message: "تم تسجيل الدخول بنجاح",
+    message: "تم التفعيل بنجاح",
     expires_at: formatDate(data.expires_at),
     plan: data.plan,
-    username: data.username,
+    code: data.code,
   });
 });
 
-// ✅ التحقق من الجلسة
+// ✅ التحقق من الكود (عند كل فتح للتطبيق)
 app.post("/api/verify", async (req, res) => {
-  const username = req.body.UserId || req.body.username || req.body.key;
-  const device_id = req.body.device_id || req.body.hwid || "unknown";
+  const code = req.body.code || req.body.key || req.body.license;
+  const device_id = req.body.device_id || req.body.hwid || req.body.deviceId || "unknown";
 
-  if (!username)
-    return res.status(400).json({ success: false, message: "البيانات ناقصة" });
+  if (!code)
+    return res.status(400).json({ success: false, message: "الكود مطلوب" });
 
   const { data, error } = await supabase
     .from("licenses")
     .select("*")
-    .eq("username", username)
+    .eq("code", code.trim().toUpperCase())
     .single();
 
   if (error || !data)
-    return res.json({ success: false, message: "الحساب غير موجود" });
+    return res.json({ success: false, message: "الكود غير موجود" });
 
   if (data.status === "disabled")
-    return res.json({ success: false, message: "الحساب معطل" });
+    return res.json({ success: false, message: "الكود معطل" });
 
   if (data.expires_at && new Date(data.expires_at) < new Date())
     return res.json({ success: false, message: "انتهت الصلاحية" });
@@ -128,7 +121,7 @@ app.post("/api/verify", async (req, res) => {
 
   return res.json({
     success: true,
-    message: "الحساب ساري",
+    message: "الكود ساري",
     expires_at: formatDate(data.expires_at),
     plan: data.plan,
   });
@@ -138,29 +131,28 @@ app.post("/api/verify", async (req, res) => {
 //  ADMIN ENDPOINTS  (محمية بـ ADMIN_SECRET)
 // ═══════════════════════════════════════════════════════════
 
-// 🔑 إنشاء حسابات جديدة
+// 🔑 إنشاء أكواد جديدة
 app.post("/api/admin/generate", adminGuard, async (req, res) => {
-  const { count = 1, plan = "basic", days = null, prefix = "user" } = req.body;
-  const accounts = [];
+  const { count = 1, plan = "basic", days = null } = req.body;
+  const codes = [];
 
   for (let i = 0; i < Math.min(count, 100); i++) {
-    const username = `${prefix}${generateKey().split("-")[0]}`;
-    const password = generateKey().split("-")[0] + generateKey().split("-")[1];
+    const code = generateCode();
     const expires_at = days
       ? new Date(Date.now() + days * 86400000).toISOString()
       : null;
 
     const { error } = await supabase
       .from("licenses")
-      .insert({ username, password, plan, expires_at, status: "active" });
+      .insert({ code, plan, expires_at, status: "pending" });
 
-    if (!error) accounts.push({ username, password });
+    if (!error) codes.push({ code });
   }
 
-  res.json({ success: true, accounts });
+  res.json({ success: true, codes });
 });
 
-// 📋 قائمة جميع الحسابات
+// 📋 قائمة جميع الأكواد
 app.get("/api/admin/keys", adminGuard, async (req, res) => {
   const { status, plan } = req.query;
   let query = supabase
@@ -174,27 +166,21 @@ app.get("/api/admin/keys", adminGuard, async (req, res) => {
   res.json({ success: true, keys: data });
 });
 
-// 🚫 تعطيل حساب
+// 🚫 تعطيل كود
 app.post("/api/admin/disable", adminGuard, async (req, res) => {
-  await supabase
-    .from("licenses")
-    .update({ status: "disabled" })
-    .eq("username", req.body.key);
-  res.json({ success: true, message: "تم تعطيل الحساب" });
+  await supabase.from("licenses").update({ status: "disabled" }).eq("code", req.body.key);
+  res.json({ success: true, message: "تم تعطيل الكود" });
 });
 
-// ✅ تفعيل حساب
+// ✅ تفعيل كود يدوياً
 app.post("/api/admin/enable", adminGuard, async (req, res) => {
-  await supabase
-    .from("licenses")
-    .update({ status: "active" })
-    .eq("username", req.body.key);
-  res.json({ success: true, message: "تم تفعيل الحساب" });
+  await supabase.from("licenses").update({ status: "active" }).eq("code", req.body.key);
+  res.json({ success: true, message: "تم تفعيل الكود" });
 });
 
-// 🗑️ حذف حساب
+// 🗑️ حذف كود
 app.post("/api/admin/delete", adminGuard, async (req, res) => {
-  await supabase.from("licenses").delete().eq("username", req.body.key);
+  await supabase.from("licenses").delete().eq("code", req.body.key);
   res.json({ success: true, message: "تم الحذف" });
 });
 
@@ -202,8 +188,8 @@ app.post("/api/admin/delete", adminGuard, async (req, res) => {
 app.post("/api/admin/reset-device", adminGuard, async (req, res) => {
   await supabase
     .from("licenses")
-    .update({ device_id: null, activated_at: null })
-    .eq("username", req.body.key);
+    .update({ device_id: null, activated_at: null, status: "pending" })
+    .eq("code", req.body.key);
   res.json({ success: true, message: "تم إعادة ضبط الجهاز" });
 });
 
