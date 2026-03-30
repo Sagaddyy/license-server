@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>مركز الملفات البرمجية</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#050810;--surface:#0a0f1e;--surface2:#0f1628;--border:#1a2540;--accent:#00f5c4;--accent2:#7c3aed;--text:#e2e8f0;--muted:#64748b;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Tajawal',sans-serif;min-height:100vh;}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,245,196,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(0,245,196,0.025) 1px,transparent 1px);background-size:50px 50px;pointer-events:none;z-index:0;}
+.wrap{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:0 20px;}
+header{padding:20px 0;border-bottom:1px solid var(--border);background:rgba(5,8,16,0.9);backdrop-filter:blur(16px);position:sticky;top:0;z-index:100;}
+.hrow{display:flex;align-items:center;justify-content:space-between;}
+.logo{display:flex;align-items:center;gap:10px;font-size:20px;font-weight:900;}
+.logo-icon{width:38px;height:38px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:9px;display:flex;align-items:center;justify-content:center;font-family:'Fira Code',monospace;font-weight:700;color:#050810;font-size:15px;}
+.logo span{color:var(--accent);}
+.hero{padding:70px 0 50px;text-align:center;}
+.badge{display:inline-flex;align-items:center;gap:8px;background:rgba(0,245,196,0.07);border:1px solid rgba(0,245,196,0.2);border-radius:100px;padding:5px 16px;font-size:12px;font-family:'Fira Code',monospace;color:var(--accent);margin-bottom:24px;}
+.badge::before{content:'';width:6px;height:6px;background:var(--accent);border-radius:50%;animation:blink 1.2s infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0.2;}}
+h1{font-size:clamp(30px,5vw,58px);font-weight:900;line-height:1.1;margin-bottom:16px;}
+h1 span{background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.sub{color:var(--muted);font-size:16px;max-width:480px;margin:0 auto 40px;line-height:1.8;}
+/* search */
+.search-box{display:flex;gap:10px;max-width:500px;margin:0 auto 60px;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:8px 8px 8px 16px;align-items:center;}
+.search-box input{flex:1;background:none;border:none;color:var(--text);font-family:'Tajawal',sans-serif;font-size:15px;outline:none;}
+.search-box input::placeholder{color:var(--muted);}
+.search-box button{background:var(--accent);color:#050810;border:none;border-radius:10px;padding:10px 20px;font-family:'Tajawal',sans-serif;font-weight:700;font-size:14px;cursor:pointer;}
+/* files */
+.files-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:18px;margin-bottom:60px;}
+.file-card{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:24px;transition:all 0.25s;cursor:default;}
+.file-card:hover{transform:translateY(-3px);border-color:rgba(0,245,196,0.3);box-shadow:0 8px 30px rgba(0,0,0,0.4);}
+.fc-head{display:flex;align-items:center;gap:14px;margin-bottom:14px;}
+.fc-icon{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+.fc-name{font-size:15px;font-weight:700;font-family:'Fira Code',monospace;word-break:break-all;}
+.fc-lang{font-size:11px;font-family:'Fira Code',monospace;padding:3px 8px;border-radius:5px;font-weight:600;margin-top:3px;display:inline-block;}
+.fc-desc{font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:16px;min-height:40px;}
+.fc-foot{display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--border);padding-top:14px;}
+.fc-meta{font-size:12px;color:var(--muted);display:flex;gap:12px;}
+.dl-btn{display:flex;align-items:center;gap:6px;background:rgba(0,245,196,0.1);border:1px solid rgba(0,245,196,0.25);color:var(--accent);border-radius:9px;padding:8px 14px;font-size:13px;font-weight:700;font-family:'Tajawal',sans-serif;cursor:pointer;transition:all 0.2s;}
+.dl-btn:hover{background:var(--accent);color:#050810;}
+.dl-btn.lock{background:rgba(124,58,237,0.1);border-color:rgba(124,58,237,0.3);color:#a78bfa;}
+.dl-btn.lock:hover{background:#7c3aed;color:#fff;}
+/* license modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(5,8,16,0.88);backdrop-filter:blur(8px);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity 0.25s;}
+.modal-overlay.open{opacity:1;pointer-events:all;}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:36px;width:100%;max-width:440px;transform:scale(0.95);transition:transform 0.25s;}
+.modal-overlay.open .modal{transform:scale(1);}
+.modal h3{font-size:20px;font-weight:800;margin-bottom:6px;}
+.modal p{color:var(--muted);font-size:14px;margin-bottom:22px;}
+.modal input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:13px 14px;color:var(--text);font-family:'Fira Code',monospace;font-size:14px;direction:ltr;margin-bottom:12px;outline:none;transition:border-color 0.2s;}
+.modal input:focus{border-color:var(--accent);}
+.modal-btns{display:flex;gap:10px;}
+.modal-btns button{flex:1;padding:13px;border-radius:10px;font-family:'Tajawal',sans-serif;font-size:15px;font-weight:700;cursor:pointer;border:none;transition:all 0.2s;}
+.btn-confirm{background:var(--accent);color:#050810;}
+.btn-cancel{background:var(--surface2);color:var(--muted);border:1px solid var(--border)!important;}
+/* empty */
+.empty{text-align:center;padding:80px 20px;color:var(--muted);}
+.empty .ei{font-size:52px;margin-bottom:16px;}
+.loader{text-align:center;padding:60px;color:var(--muted);font-family:'Fira Code',monospace;font-size:14px;}
+.loader::before{content:'⟳ ';animation:spin 1s linear infinite;display:inline-block;}
+@keyframes spin{to{transform:rotate(360deg);}}
+/* toast */
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--surface);border:1px solid var(--accent);border-radius:12px;padding:12px 22px;font-size:14px;color:var(--accent);font-family:'Fira Code',monospace;z-index:300;transition:transform 0.3s;white-space:nowrap;}
+.toast.show{transform:translateX(-50%) translateY(0);}
+footer{border-top:1px solid var(--border);padding:28px 0;text-align:center;color:var(--muted);font-size:13px;font-family:'Fira Code',monospace;}
+footer span{color:var(--accent);}
+@media(max-width:600px){.files-grid{grid-template-columns:1fr;}.fc-name{font-size:13px;}}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap hrow">
+    <div class="logo">
+      <div class="logo-icon">&lt;/&gt;</div>
+      Code<span>Vault</span>
+    </div>
+    <div style="font-family:'Fira Code',monospace;font-size:12px;color:var(--muted)">مركز الملفات البرمجية</div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="hero">
+    <div class="badge">ملفات برمجية · محدّثة باستمرار</div>
+    <h1>مكتبة الملفات<br><span>البرمجية المتخصصة</span></h1>
+    <p class="sub">حمّل الأدوات والمشاريع البرمجية مباشرة. بعض الملفات تتطلب ترخيصاً خاصاً.</p>
+    <div class="search-box">
+      <input type="text" id="search" placeholder="ابحث عن ملف أو لغة..." oninput="filterFiles()">
+      <button onclick="filterFiles()">بحث</button>
+    </div>
+  </div>
+
+  <div class="files-grid" id="files-grid">
+    <div class="loader">جاري تحميل الملفات...</div>
+  </div>
+</div>
+
+<footer><div class="wrap">CodeVault · <span>مبني للمطورين</span> · {new Date().getFullYear()}</div></footer>
+
+<!-- license modal -->
+<div class="modal-overlay" id="lic-modal">
+  <div class="modal">
+    <h3>🔐 أدخل رمز الترخيص</h3>
+    <p>هذا الملف يتطلب ترخيصاً صالحاً للتحميل</p>
+    <input type="text" id="lic-input" placeholder="XXXX-XXXX-XXXX-XXXX" maxlength="40">
+    <div class="modal-btns">
+      <button class="btn-confirm" onclick="confirmDownload()">تحميل ⬇</button>
+      <button class="btn-cancel" onclick="closeModal()">إلغاء</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+let allFiles = [], pendingFileId = null;
+
+async function loadFiles() {
+  try {
+    const r = await fetch("/api/files");
+    const d = await r.json();
+    allFiles = d.files || [];
+    renderFiles(allFiles);
+  } catch { document.getElementById("files-grid").innerHTML = '<div class="empty"><div class="ei">⚠️</div><p>تعذر تحميل الملفات</p></div>'; }
+}
+
+function formatSize(b) {
+  if (b<1024) return b+"B";
+  if (b<1048576) return (b/1024).toFixed(1)+"KB";
+  return (b/1048576).toFixed(1)+"MB";
+}
+function timeAgo(iso) {
+  const d = Math.floor((Date.now()-new Date(iso))/86400000);
+  if (d===0) return "اليوم"; if (d===1) return "أمس";
+  if (d<30) return `${d} يوم`; if (d<365) return `${Math.floor(d/30)} شهر`;
+  return `${Math.floor(d/365)} سنة`;
+}
+
+function renderFiles(list) {
+  const g = document.getElementById("files-grid");
+  if (!list.length) { g.innerHTML='<div class="empty"><div class="ei">📭</div><p>لا توجد ملفات حالياً</p></div>'; return; }
+  g.innerHTML = list.map(f => `
+    <div class="file-card">
+      <div class="fc-head">
+        <div class="fc-icon" style="background:${f.color}18;border:1px solid ${f.color}30">${f.icon}</div>
+        <div>
+          <div class="fc-name" title="${f.name}">${f.name.length>28?f.name.slice(0,26)+"...":f.name}</div>
+          <span class="fc-lang" style="background:${f.color}18;color:${f.color}">${f.lang}</span>
+        </div>
+      </div>
+      <div class="fc-desc">${f.description || "<span style='color:var(--muted);font-style:italic'>لا يوجد وصف</span>"}</div>
+      <div class="fc-foot">
+        <div class="fc-meta">
+          <span>📦 ${formatSize(f.size)}</span>
+          <span>⬇ ${f.downloads}</span>
+          <span>🕐 ${timeAgo(f.uploadedAt)}</span>
+        </div>
+        ${f.requiresLicense
+          ? `<button class="dl-btn lock" onclick="openLicModal('${f.id}')">🔐 ترخيص</button>`
+          : `<button class="dl-btn" onclick="downloadFile('${f.id}')">⬇ تحميل</button>`}
+      </div>
+    </div>
+  `).join("");
+}
+
+function filterFiles() {
+  const q = document.getElementById("search").value.toLowerCase();
+  renderFiles(q ? allFiles.filter(f=>f.name.toLowerCase().includes(q)||f.lang.toLowerCase().includes(q)||(f.description||"").toLowerCase().includes(q)) : allFiles);
+}
+
+function downloadFile(id, license="") {
+  const url = `/api/files/${id}/download` + (license?`?license=${license}`:"");
+  window.location.href = url;
+  showToast("⬇ جاري التحميل...");
+}
+
+function openLicModal(id) { pendingFileId=id; document.getElementById("lic-modal").classList.add("open"); document.getElementById("lic-input").focus(); }
+function closeModal() { document.getElementById("lic-modal").classList.remove("open"); pendingFileId=null; }
+async function confirmDownload() {
+  const code = document.getElementById("lic-input").value.trim();
+  if (!code) { showToast("❌ أدخل رمز الترخيص"); return; }
+  closeModal();
+  const r = await fetch(`/api/files/${pendingFileId}/download?license=${code}`);
+  if (!r.ok) { const d=await r.json(); showToast("❌ "+d.message); return; }
+  const blob = await r.blob();
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "";
+  a.click();
+  showToast("✅ تم التحميل");
+}
+
+function showToast(msg) {
+  const t=document.getElementById("toast"); t.textContent=msg; t.classList.add("show");
+  clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove("show"),2800);
+}
+
+document.getElementById("lic-input").addEventListener("keydown",e=>{ if(e.key==="Enter") confirmDownload(); });
+document.getElementById("lic-modal").addEventListener("click",e=>{ if(e.target===document.getElementById("lic-modal")) closeModal(); });
+loadFiles();
+</script>
+</body>
+</html>
