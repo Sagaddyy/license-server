@@ -3,245 +3,308 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>لوحة تحكم التفعيل</title>
+<title>لوحة التحكم</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap');
-  :root {
-    --bg: #0a0a0f; --surface: #111118; --card: #16161f; --border: #2a2a3a;
-    --accent: #6c63ff; --accent2: #ff6584; --green: #00e676;
-    --orange: #ffab40; --red: #ff5252; --text: #e8e8f0; --muted: #7070a0;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Cairo', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+:root{--bg:#050810;--s:#0a0f1e;--s2:#0f1628;--bdr:#1a2540;--ac:#00f5c4;--ac2:#7c3aed;--ac3:#f59e0b;--tx:#e2e8f0;--mt:#64748b;--gn:#22c55e;--rd:#ef4444;--or:#f59e0b;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--tx);font-family:'Tajawal',sans-serif;min-height:100vh;}
 
-  #login-screen {
-    display: flex; align-items: center; justify-content: center;
-    min-height: 100vh; background: radial-gradient(ellipse at 50% 0%, #1a1040 0%, var(--bg) 70%);
-  }
-  .login-box {
-    background: var(--card); border: 1px solid var(--border);
-    border-radius: 20px; padding: 48px; width: 380px; text-align: center;
-  }
-  .login-box .logo { font-size: 48px; margin-bottom: 8px; }
-  .login-box h1 {
-    font-size: 24px; font-weight: 700; margin-bottom: 8px;
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-  }
-  .login-box p { color: var(--muted); margin-bottom: 32px; font-size: 14px; }
-  input, select {
-    width: 100%; padding: 14px 16px; background: var(--surface);
-    border: 1px solid var(--border); border-radius: 10px; color: var(--text);
-    font-family: 'Cairo', sans-serif; font-size: 15px; margin-bottom: 12px;
-    direction: ltr; transition: border-color 0.2s;
-  }
-  input:focus, select:focus { outline: none; border-color: var(--accent); }
-  .btn {
-    padding: 14px 24px; border: none; border-radius: 10px; cursor: pointer;
-    font-family: 'Cairo', sans-serif; font-size: 15px; font-weight: 600; transition: all 0.2s;
-  }
-  .btn-primary { background: linear-gradient(135deg, var(--accent), #4a43cc); color: white; width: 100%; }
-  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(108,99,255,0.4); }
-  .btn-sm { padding: 7px 14px; font-size: 13px; border-radius: 8px; }
-  .btn-green { background: rgba(0,230,118,0.15); color: var(--green); border: 1px solid rgba(0,230,118,0.3); }
-  .btn-red { background: rgba(255,82,82,0.15); color: var(--red); border: 1px solid rgba(255,82,82,0.3); }
-  .btn-orange { background: rgba(255,171,64,0.15); color: var(--orange); border: 1px solid rgba(255,171,64,0.3); }
-  .btn:hover { filter: brightness(1.2); }
+/* LOGIN */
+#login{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at 50% 0%,#0d1433 0%,var(--bg) 70%);z-index:999;}
+.lb{background:var(--s);border:1px solid var(--bdr);border-radius:24px;padding:48px;width:380px;text-align:center;}
+.lb-logo{font-size:54px;margin-bottom:8px;}
+.lb h2{font-size:26px;font-weight:900;background:linear-gradient(135deg,var(--ac),var(--ac2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px;}
+.lb p{color:var(--mt);font-size:13px;margin-bottom:32px;}
+.inp{width:100%;background:var(--s2);border:1px solid var(--bdr);border-radius:11px;padding:13px 14px;color:var(--tx);font-family:'Tajawal',sans-serif;font-size:15px;margin-bottom:12px;direction:ltr;outline:none;transition:border-color 0.2s;}
+.inp:focus{border-color:var(--ac);}
+.btn-login{width:100%;background:linear-gradient(135deg,var(--ac),#00c9a7);color:#050810;border:none;border-radius:11px;padding:14px;font-family:'Tajawal',sans-serif;font-size:16px;font-weight:900;cursor:pointer;transition:all 0.2s;}
+.btn-login:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,245,196,0.35);}
+.err{color:var(--rd);font-size:13px;margin-top:10px;display:none;}
 
-  #app { display: none; }
-  header {
-    background: var(--surface); border-bottom: 1px solid var(--border);
-    padding: 16px 32px; display: flex; align-items: center;
-    justify-content: space-between; position: sticky; top: 0; z-index: 100;
-  }
-  header .brand { display: flex; align-items: center; gap: 12px; }
-  header .brand span { font-size: 28px; }
-  header .brand h2 { font-size: 18px; font-weight: 700; }
-  .logout-btn {
-    background: rgba(255,82,82,0.1); color: var(--red); border: 1px solid rgba(255,82,82,0.2);
-    padding: 8px 18px; border-radius: 8px; cursor: pointer; font-family: 'Cairo', sans-serif; font-size: 14px;
-  }
-  .container { max-width: 1200px; margin: 0 auto; padding: 32px 24px; }
-  .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px; }
-  .stat-card {
-    background: var(--card); border: 1px solid var(--border);
-    border-radius: 16px; padding: 24px; text-align: center;
-  }
-  .stat-card .num { font-size: 40px; font-weight: 900; line-height: 1; margin-bottom: 4px; }
-  .stat-card .label { color: var(--muted); font-size: 13px; }
-  .gen-panel { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 24px; margin-bottom: 24px; }
-  .gen-panel h3 { font-size: 16px; font-weight: 700; margin-bottom: 16px; }
-  .gen-form { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; }
-  .gen-form .field { display: flex; flex-direction: column; gap: 6px; }
-  .gen-form label { font-size: 13px; color: var(--muted); }
-  .gen-form input, .gen-form select { margin-bottom: 0; width: auto; min-width: 120px; }
-  .table-panel { background: var(--card); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; }
-  .table-header {
-    padding: 20px 24px; border-bottom: 1px solid var(--border);
-    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;
-  }
-  .table-header h3 { font-size: 16px; font-weight: 700; }
-  .filters { display: flex; gap: 8px; }
-  .filter-btn {
-    padding: 7px 16px; border-radius: 20px; border: 1px solid var(--border);
-    background: transparent; color: var(--muted); cursor: pointer;
-    font-family: 'Cairo', sans-serif; font-size: 13px; transition: all 0.2s;
-  }
-  .filter-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
-  table { width: 100%; border-collapse: collapse; }
-  th {
-    padding: 12px 16px; text-align: right; font-size: 12px; color: var(--muted);
-    font-weight: 600; border-bottom: 1px solid var(--border); background: var(--surface); text-transform: uppercase;
-  }
-  td { padding: 14px 16px; font-size: 14px; border-bottom: 1px solid rgba(42,42,58,0.5); vertical-align: middle; }
-  tr:last-child td { border-bottom: none; }
-  tr:hover td { background: rgba(108,99,255,0.04); }
-  .code-text {
-    font-family: 'Courier New', monospace; font-size: 13px; color: var(--accent);
-    letter-spacing: 1px; cursor: pointer;
-  }
-  .code-text:hover { text-decoration: underline; }
-  .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
-  .badge-active { background: rgba(0,230,118,0.15); color: var(--green); }
-  .badge-pending { background: rgba(255,171,64,0.15); color: var(--orange); }
-  .badge-disabled { background: rgba(255,82,82,0.15); color: var(--red); }
-  .actions { display: flex; gap: 6px; flex-wrap: wrap; }
-  .empty { text-align: center; padding: 60px; color: var(--muted); }
-  .empty .icon { font-size: 48px; margin-bottom: 12px; }
-  .modal-overlay {
-    display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7);
-    z-index: 200; align-items: center; justify-content: center;
-  }
-  .modal-overlay.show { display: flex; }
-  .modal {
-    background: var(--card); border: 1px solid var(--border); border-radius: 20px;
-    padding: 32px; width: 520px; max-width: 90vw; max-height: 80vh; overflow-y: auto;
-  }
-  .modal h3 { font-size: 18px; font-weight: 700; margin-bottom: 20px; }
-  .code-item {
-    background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
-    padding: 14px 16px; margin-bottom: 8px; display: flex;
-    justify-content: space-between; align-items: center; cursor: pointer; transition: all 0.2s;
-  }
-  .code-item:hover { background: rgba(108,99,255,0.1); border-color: var(--accent); }
-  .code-item .c { font-family: monospace; color: var(--accent); font-size: 15px; letter-spacing: 1px; }
-  .code-item .hint { font-size: 11px; color: var(--muted); }
-  .toast {
-    position: fixed; bottom: 24px; left: 50%;
-    transform: translateX(-50%) translateY(100px);
-    background: var(--card); border: 1px solid var(--border); border-radius: 12px;
-    padding: 14px 24px; font-size: 14px; font-weight: 600; transition: transform 0.3s; z-index: 999;
-  }
-  .toast.show { transform: translateX(-50%) translateY(0); }
-  @media (max-width: 768px) {
-    .stats-grid { grid-template-columns: repeat(2, 1fr); }
-    .gen-form { flex-direction: column; }
-    table { font-size: 12px; }
-    td, th { padding: 10px 8px; }
-  }
+/* LAYOUT */
+#app{display:none;min-height:100vh;}
+.sidebar{position:fixed;top:0;right:0;width:240px;height:100vh;background:var(--s);border-left:1px solid var(--bdr);padding:24px 0;z-index:100;display:flex;flex-direction:column;}
+.sb-logo{padding:0 20px 24px;border-bottom:1px solid var(--bdr);margin-bottom:20px;}
+.sb-logo h2{font-size:18px;font-weight:900;}
+.sb-logo h2 span{color:var(--ac);}
+.sb-logo p{font-size:11px;color:var(--mt);font-family:'Fira Code',monospace;margin-top:2px;}
+nav{flex:1;}
+.nav-item{display:flex;align-items:center;gap:12px;padding:12px 20px;cursor:pointer;transition:all 0.2s;font-size:14px;font-weight:500;color:var(--mt);border-right:3px solid transparent;}
+.nav-item:hover{color:var(--tx);background:rgba(255,255,255,0.03);}
+.nav-item.active{color:var(--ac);background:rgba(0,245,196,0.06);border-right-color:var(--ac);}
+.nav-item .ni{font-size:18px;width:22px;text-align:center;}
+.sb-foot{padding:16px 20px;border-top:1px solid var(--bdr);}
+.logout{width:100%;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);color:var(--rd);padding:10px;border-radius:9px;font-family:'Tajawal',sans-serif;font-size:14px;cursor:pointer;transition:all 0.2s;}
+.logout:hover{background:rgba(239,68,68,0.2);}
+main{margin-right:240px;padding:32px;}
+.page{display:none;}
+.page.active{display:block;}
+.page-title{font-size:26px;font-weight:900;margin-bottom:6px;}
+.page-sub{color:var(--mt);font-size:14px;margin-bottom:28px;}
+
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;margin-bottom:28px;}
+.stat{background:var(--s);border:1px solid var(--bdr);border-radius:16px;padding:22px;text-align:center;}
+.stat .n{font-size:38px;font-weight:900;font-family:'Fira Code',monospace;line-height:1;}
+.stat .l{font-size:12px;color:var(--mt);margin-top:6px;}
+
+/* PANELS */
+.panel{background:var(--s);border:1px solid var(--bdr);border-radius:18px;margin-bottom:20px;overflow:hidden;}
+.ph{padding:20px 24px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;}
+.ph h3{font-size:16px;font-weight:700;}
+.pb{padding:24px;}
+
+/* FORMS */
+.form-row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;}
+.field{display:flex;flex-direction:column;gap:6px;}
+.field label{font-size:12px;color:var(--mt);font-family:'Fira Code',monospace;}
+.field input,.field select,.field textarea{background:var(--s2);border:1px solid var(--bdr);border-radius:9px;padding:11px 13px;color:var(--tx);font-family:'Tajawal',sans-serif;font-size:14px;outline:none;transition:border-color 0.2s;}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--ac);}
+.field textarea{resize:vertical;min-height:80px;width:100%;}
+
+/* BUTTONS */
+.btn{padding:11px 20px;border:none;border-radius:10px;font-family:'Tajawal',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all 0.2s;display:inline-flex;align-items:center;gap:8px;}
+.btn:hover{transform:translateY(-1px);}
+.btn-ac{background:var(--ac);color:#050810;}
+.btn-ac2{background:var(--ac2);color:#fff;}
+.btn-sm{padding:7px 14px;font-size:12px;border-radius:8px;}
+.btn-gn{background:rgba(34,197,94,0.15);color:var(--gn);border:1px solid rgba(34,197,94,0.3);}
+.btn-rd{background:rgba(239,68,68,0.15);color:var(--rd);border:1px solid rgba(239,68,68,0.3);}
+.btn-or{background:rgba(245,158,11,0.15);color:var(--or);border:1px solid rgba(245,158,11,0.3);}
+.btn-gray{background:var(--s2);color:var(--mt);border:1px solid var(--bdr);}
+
+/* TABLE */
+.tbl-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;}
+th{padding:11px 14px;text-align:right;font-size:11px;color:var(--mt);font-weight:600;border-bottom:1px solid var(--bdr);background:var(--s2);text-transform:uppercase;font-family:'Fira Code',monospace;}
+td{padding:13px 14px;font-size:13px;border-bottom:1px solid rgba(26,37,64,0.5);vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:rgba(0,245,196,0.025);}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;font-family:'Fira Code',monospace;}
+.b-ac{background:rgba(34,197,94,0.12);color:var(--gn);}
+.b-pe{background:rgba(245,158,11,0.12);color:var(--or);}
+.b-di{background:rgba(239,68,68,0.12);color:var(--rd);}
+.b-vis{background:rgba(0,245,196,0.12);color:var(--ac);}
+.b-hid{background:rgba(100,116,139,0.12);color:var(--mt);}
+.code-txt{font-family:'Fira Code',monospace;font-size:12px;color:var(--ac);cursor:pointer;letter-spacing:0.5px;}
+.code-txt:hover{text-decoration:underline;}
+.act-row{display:flex;gap:6px;flex-wrap:wrap;}
+.empty-row td{text-align:center;padding:48px;color:var(--mt);}
+
+/* UPLOAD ZONE */
+.dz{border:2px dashed var(--bdr);border-radius:16px;padding:48px;text-align:center;cursor:pointer;transition:all 0.25s;margin-bottom:20px;}
+.dz:hover,.dz.over{border-color:var(--ac);background:rgba(0,245,196,0.03);}
+.dz .di{font-size:44px;margin-bottom:14px;}
+.dz h4{font-size:17px;font-weight:700;margin-bottom:8px;}
+.dz p{color:var(--mt);font-size:13px;}
+.file-preview{background:var(--s2);border:1px solid var(--bdr);border-radius:12px;padding:16px;display:flex;align-items:center;gap:14px;margin-bottom:16px;}
+.fp-icon{font-size:28px;}
+.fp-info{flex:1;}
+.fp-name{font-family:'Fira Code',monospace;font-size:13px;color:var(--tx);}
+.fp-lang{font-size:11px;color:var(--mt);margin-top:3px;}
+
+/* FILTERS */
+.filters{display:flex;gap:8px;flex-wrap:wrap;}
+.fbtn{padding:7px 16px;border-radius:20px;border:1px solid var(--bdr);background:transparent;color:var(--mt);cursor:pointer;font-family:'Tajawal',sans-serif;font-size:13px;transition:all 0.2s;}
+.fbtn.on{background:var(--ac);color:#050810;border-color:var(--ac);font-weight:700;}
+
+/* TOAST */
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--s);border:1px solid var(--bdr);border-radius:12px;padding:12px 24px;font-size:14px;z-index:500;transition:transform 0.3s;white-space:nowrap;font-family:'Fira Code',monospace;}
+.toast.show{transform:translateX(-50%) translateY(0);}
+
+/* MODAL */
+.moverlay{position:fixed;inset:0;background:rgba(5,8,16,0.85);backdrop-filter:blur(8px);z-index:400;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity 0.25s;}
+.moverlay.open{opacity:1;pointer-events:all;}
+.modal{background:var(--s);border:1px solid var(--bdr);border-radius:20px;padding:36px;width:100%;max-width:520px;max-height:85vh;overflow-y:auto;transform:scale(0.95);transition:transform 0.25s;}
+.moverlay.open .modal{transform:scale(1);}
+.modal h3{font-size:18px;font-weight:800;margin-bottom:16px;}
+.modal .code-item{background:var(--s2);border:1px solid var(--bdr);border-radius:10px;padding:13px 16px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;transition:all 0.2s;}
+.modal .code-item:hover{border-color:var(--ac);background:rgba(0,245,196,0.05);}
+.modal .code-item .c{font-family:'Fira Code',monospace;color:var(--ac);font-size:14px;letter-spacing:1px;}
+.modal .code-item .hint{font-size:11px;color:var(--mt);}
+@media(max-width:768px){.sidebar{width:200px;}.main{margin-right:200px;}.stats{grid-template-columns:repeat(2,1fr);}}
 </style>
 </head>
 <body>
 
-<div id="login-screen">
-  <div class="login-box">
-    <div class="logo">🔐</div>
-    <h1>لوحة التحكم</h1>
-    <p>نظام إدارة أكواد التفعيل</p>
-    <input type="password" id="secret-input" placeholder="كلمة السر..." />
-    <button class="btn btn-primary" onclick="doLogin()">دخول</button>
+<!-- LOGIN -->
+<div id="login">
+  <div class="lb">
+    <div class="lb-logo">🛡️</div>
+    <h2>لوحة التحكم السرية</h2>
+    <p>هذه الصفحة مخفية — للمالك فقط</p>
+    <input class="inp" type="password" id="sec" placeholder="كلمة المرور...">
+    <button class="btn-login" onclick="doLogin()">دخول</button>
+    <div class="err" id="err">❌ كلمة المرور غير صحيحة</div>
   </div>
 </div>
 
+<!-- APP -->
 <div id="app">
-  <header>
-    <div class="brand">
-      <span>🔑</span>
-      <h2>نظام التفعيل بالكود</h2>
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sb-logo">
+      <h2>Code<span>Vault</span></h2>
+      <p>// admin panel</p>
     </div>
-    <button class="logout-btn" onclick="logout()">خروج</button>
-  </header>
-
-  <div class="container">
-    <div class="stats-grid">
-      <div class="stat-card">
-        <div class="num" id="stat-total" style="color:#6c63ff">0</div>
-        <div class="label">إجمالي الأكواد</div>
-      </div>
-      <div class="stat-card">
-        <div class="num" id="stat-active" style="color:#00e676">0</div>
-        <div class="label">مفعّل</div>
-      </div>
-      <div class="stat-card">
-        <div class="num" id="stat-pending" style="color:#ffab40">0</div>
-        <div class="label">في الانتظار</div>
-      </div>
-      <div class="stat-card">
-        <div class="num" id="stat-disabled" style="color:#ff5252">0</div>
-        <div class="label">معطّل</div>
-      </div>
-    </div>
-
-    <div class="gen-panel">
-      <h3>⚡ إنشاء أكواد جديدة</h3>
-      <div class="gen-form">
-        <div class="field">
-          <label>عدد الأكواد</label>
-          <input type="number" id="gen-count" value="1" min="1" max="100" style="width:120px">
-        </div>
-        <div class="field">
-          <label>الباقة</label>
-          <select id="gen-plan">
-            <option value="basic">أساسي</option>
-            <option value="pro">برو</option>
-            <option value="lifetime">مدى الحياة</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>مدة الصلاحية (أيام)</label>
-          <input type="number" id="gen-days" placeholder="بلا حد" min="1" style="width:150px">
-        </div>
-        <button class="btn btn-primary" onclick="generateCodes()" style="width:auto">إنشاء 🎲</button>
-      </div>
-    </div>
-
-    <div class="table-panel">
-      <div class="table-header">
-        <h3>📋 الأكواد</h3>
-        <div class="filters">
-          <button class="filter-btn active" onclick="setFilter('all', this)">الكل</button>
-          <button class="filter-btn" onclick="setFilter('active', this)">مفعّل</button>
-          <button class="filter-btn" onclick="setFilter('pending', this)">انتظار</button>
-          <button class="filter-btn" onclick="setFilter('disabled', this)">معطّل</button>
-        </div>
-      </div>
-      <div style="overflow-x:auto">
-        <table>
-          <thead>
-            <tr>
-              <th>الكود</th>
-              <th>الحالة</th>
-              <th>الباقة</th>
-              <th>الجهاز</th>
-              <th>الانتهاء</th>
-              <th>الإجراءات</th>
-            </tr>
-          </thead>
-          <tbody id="keys-table"></tbody>
-        </table>
-      </div>
+    <nav>
+      <div class="nav-item active" onclick="showPage('dash',this)"><span class="ni">📊</span>الإحصائيات</div>
+      <div class="nav-item" onclick="showPage('files',this)"><span class="ni">📁</span>إدارة الملفات</div>
+      <div class="nav-item" onclick="showPage('upload',this)"><span class="ni">⬆️</span>رفع ملف</div>
+      <div class="nav-item" onclick="showPage('licenses',this)"><span class="ni">🔑</span>أكواد الترخيص</div>
+    </nav>
+    <div class="sb-foot">
+      <button class="logout" onclick="logout()">خروج 🚪</button>
     </div>
   </div>
+
+  <main>
+    <!-- DASHBOARD -->
+    <div class="page active" id="page-dash">
+      <div class="page-title">📊 لوحة التحكم</div>
+      <div class="page-sub">نظرة عامة على الموقع والإحصائيات</div>
+      <div class="stats">
+        <div class="stat"><div class="n" id="st-files" style="color:var(--ac)">—</div><div class="l">إجمالي الملفات</div></div>
+        <div class="stat"><div class="n" id="st-dl" style="color:var(--ac2)">—</div><div class="l">إجمالي التحميلات</div></div>
+        <div class="stat"><div class="n" id="st-total" style="color:var(--ac)">—</div><div class="l">أكواد ترخيص</div></div>
+        <div class="stat"><div class="n" id="st-active" style="color:var(--gn)">—</div><div class="l">كود مفعّل</div></div>
+        <div class="stat"><div class="n" id="st-pending" style="color:var(--or)">—</div><div class="l">في الانتظار</div></div>
+        <div class="stat"><div class="n" id="st-disabled" style="color:var(--rd)">—</div><div class="l">معطّل</div></div>
+      </div>
+
+      <div class="panel">
+        <div class="ph"><h3>📋 آخر الملفات المرفوعة</h3></div>
+        <div class="tbl-wrap">
+          <table><thead><tr><th>الملف</th><th>اللغة</th><th>التحميلات</th><th>الحالة</th></tr></thead>
+          <tbody id="dash-files"></tbody></table>
+        </div>
+      </div>
+    </div>
+
+    <!-- FILES -->
+    <div class="page" id="page-files">
+      <div class="page-title">📁 إدارة الملفات</div>
+      <div class="page-sub">عرض وتعديل وحذف الملفات المرفوعة</div>
+      <div class="panel">
+        <div class="ph">
+          <h3>الملفات (<span id="fc">0</span>)</h3>
+          <div class="filters">
+            <button class="fbtn on" onclick="setFFilter('all',this)">الكل</button>
+            <button class="fbtn" onclick="setFFilter('visible',this)">ظاهر</button>
+            <button class="fbtn" onclick="setFFilter('hidden',this)">مخفي</button>
+            <button class="fbtn" onclick="setFFilter('license',this)">يحتاج ترخيص</button>
+          </div>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>الملف</th><th>اللغة</th><th>الحجم</th><th>التحميلات</th><th>الوصف</th><th>الحالة</th><th>الإجراءات</th></tr></thead>
+            <tbody id="files-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- UPLOAD -->
+    <div class="page" id="page-upload">
+      <div class="page-title">⬆️ رفع ملف جديد</div>
+      <div class="page-sub">ارفع ملفاً برمجياً مع وصف وإعدادات مخصصة</div>
+      <div class="panel">
+        <div class="ph"><h3>رفع ملف</h3></div>
+        <div class="pb">
+          <div class="dz" id="dz" onclick="document.getElementById('fi').click()">
+            <div class="di">📂</div>
+            <h4>اسحب ملفك هنا أو اضغط للاختيار</h4>
+            <p>يدعم جميع أنواع الملفات · حتى 100MB</p>
+            <input type="file" id="fi" style="display:none" onchange="pickFile(this)">
+          </div>
+          <div id="fp" style="display:none"></div>
+          <div class="field" style="margin-bottom:14px">
+            <label>وصف الملف (مهم جداً — يظهر للمستخدمين)</label>
+            <textarea class="inp" id="up-desc" rows="3" placeholder="اشرح ما يفعله هذا الملف، متطلباته، وكيفية استخدامه..."></textarea>
+          </div>
+          <div class="form-row" style="margin-bottom:20px">
+            <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:14px">
+              <input type="checkbox" id="up-lic" style="width:18px;height:18px;cursor:pointer">
+              🔐 يتطلب ترخيصاً للتحميل
+            </label>
+          </div>
+          <button class="btn btn-ac" onclick="uploadFile()" id="up-btn">⬆ رفع الملف</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- LICENSES -->
+    <div class="page" id="page-licenses">
+      <div class="page-title">🔑 أكواد الترخيص</div>
+      <div class="page-sub">إنشاء وإدارة أكواد تفعيل التطبيق</div>
+      <div class="panel">
+        <div class="ph"><h3>⚡ إنشاء أكواد جديدة</h3></div>
+        <div class="pb">
+          <div class="form-row">
+            <div class="field"><label>عدد الأكواد</label><input class="inp" type="number" id="gc" value="1" min="1" max="100" style="width:110px"></div>
+            <div class="field"><label>الباقة</label>
+              <select class="inp" id="gp" style="width:130px">
+                <option value="basic">أساسي</option>
+                <option value="pro">برو</option>
+                <option value="lifetime">مدى الحياة</option>
+              </select>
+            </div>
+            <div class="field"><label>مدة الصلاحية (أيام)</label><input class="inp" type="number" id="gd" placeholder="بلا حد" min="1" style="width:140px"></div>
+            <button class="btn btn-ac" onclick="genCodes()">إنشاء 🎲</button>
+          </div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="ph">
+          <h3>الأكواد (<span id="kc">0</span>)</h3>
+          <div class="filters">
+            <button class="fbtn on" onclick="setKFilter('all',this)">الكل</button>
+            <button class="fbtn" onclick="setKFilter('active',this)">مفعّل</button>
+            <button class="fbtn" onclick="setKFilter('pending',this)">انتظار</button>
+            <button class="fbtn" onclick="setKFilter('disabled',this)">معطّل</button>
+          </div>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>الكود</th><th>الحالة</th><th>الباقة</th><th>الجهاز</th><th>الانتهاء</th><th>الإجراءات</th></tr></thead>
+            <tbody id="keys-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
 </div>
 
-<div class="modal-overlay" id="modal">
+<!-- Codes Modal -->
+<div class="moverlay" id="codes-modal">
   <div class="modal">
     <h3>🎉 الأكواد الجديدة</h3>
-    <p style="color:var(--muted);font-size:13px;margin-bottom:16px">انقر على أي كود لنسخه</p>
+    <p style="color:var(--mt);font-size:13px;margin-bottom:16px">انقر على أي كود لنسخه</p>
     <div id="modal-codes"></div>
-    <div style="display:flex;gap:8px;margin-top:16px">
-      <button class="btn btn-primary" onclick="copyAll()" style="flex:1">نسخ الكل</button>
-      <button class="btn" style="background:var(--surface);border:1px solid var(--border);color:var(--muted)" onclick="closeModal()">إغلاق</button>
+    <div style="display:flex;gap:10px;margin-top:16px">
+      <button class="btn btn-ac" onclick="copyAllCodes()" style="flex:1">نسخ الكل 📋</button>
+      <button class="btn btn-gray" onclick="closeCodes()">إغلاق</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit File Modal -->
+<div class="moverlay" id="edit-modal">
+  <div class="modal">
+    <h3>✏️ تعديل الملف</h3>
+    <input type="hidden" id="edit-id">
+    <div class="field" style="margin-bottom:14px"><label>وصف الملف</label><textarea class="inp" id="edit-desc" rows="4" style="width:100%"></textarea></div>
+    <div class="field" style="margin-bottom:14px"><label>اسم العرض</label><input class="inp" id="edit-name" type="text" style="width:100%"></div>
+    <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:14px;margin-bottom:20px">
+      <input type="checkbox" id="edit-vis" style="width:18px;height:18px">ظاهر للمستخدمين
+    </label>
+    <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:14px;margin-bottom:24px">
+      <input type="checkbox" id="edit-lic" style="width:18px;height:18px">يتطلب ترخيص
+    </label>
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-ac" onclick="saveEdit()" style="flex:1">حفظ التعديلات ✅</button>
+      <button class="btn btn-gray" onclick="closeEdit()">إلغاء</button>
     </div>
   </div>
 </div>
@@ -249,165 +312,228 @@
 <div class="toast" id="toast"></div>
 
 <script>
-let adminSecret = '';
-let allKeys = [];
-let currentFilter = 'all';
-let generatedCodes = [];
+let SECRET='', allFiles=[], allKeys=[], genCodes_list=[];
+let fFilter='all', kFilter='all';
 
-function doLogin() {
-  adminSecret = document.getElementById('secret-input').value;
-  if (!adminSecret) return;
+// ─── AUTH ───
+function doLogin(){
+  SECRET=document.getElementById('sec').value;
+  if(!SECRET) return;
   loadAll();
 }
+document.getElementById('sec').addEventListener('keydown',e=>{ if(e.key==='Enter') doLogin(); });
 
-function logout() {
-  adminSecret = '';
-  document.getElementById('app').style.display = 'none';
-  document.getElementById('login-screen').style.display = 'flex';
+async function loadAll(){
+  const r=await api('/api/admin/stats');
+  if(!r.success){ document.getElementById('err').style.display='block'; setTimeout(()=>document.getElementById('err').style.display='none',2500); SECRET=''; return; }
+  document.getElementById('login').style.display='none';
+  document.getElementById('app').style.display='block';
+  updateStats(r.stats);
+  await Promise.all([loadFiles(), loadKeys()]);
 }
+function logout(){ SECRET=''; document.getElementById('app').style.display='none'; document.getElementById('login').style.display='flex'; document.getElementById('sec').value=''; }
 
-async function api(path, method = 'GET', body = null) {
-  const opts = {
-    method,
-    headers: { 'Content-Type': 'application/json', 'x-admin-secret': adminSecret }
-  };
-  if (body) opts.body = JSON.stringify(body);
-  const r = await fetch(path, opts);
+// ─── API ───
+async function api(path,method='GET',body=null){
+  const opts={method,headers:{'Content-Type':'application/json','x-admin-secret':SECRET}};
+  if(body) opts.body=JSON.stringify(body);
+  const r=await fetch(path,opts);
   return r.json();
 }
 
-async function loadAll() {
-  const stats = await api('/api/admin/stats');
-  if (!stats.success) { showToast('كلمة السر خاطئة ❌'); return; }
-
-  document.getElementById('login-screen').style.display = 'none';
-  document.getElementById('app').style.display = 'block';
-
-  document.getElementById('stat-total').textContent = stats.stats.total;
-  document.getElementById('stat-active').textContent = stats.stats.active;
-  document.getElementById('stat-pending').textContent = stats.stats.pending;
-  document.getElementById('stat-disabled').textContent = stats.stats.disabled;
-
-  const keys = await api('/api/admin/keys');
-  allKeys = keys.keys || [];
-  renderTable();
+// ─── NAV ───
+function showPage(id,el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  el.classList.add('active');
+  if(id==='dash') refreshStats();
+  if(id==='files') loadFiles();
+  if(id==='licenses') loadKeys();
 }
 
-function setFilter(f, btn) {
-  currentFilter = f;
-  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  renderTable();
+// ─── STATS ───
+function updateStats(s){
+  document.getElementById('st-files').textContent=s.files??'—';
+  document.getElementById('st-dl').textContent=s.downloads??'—';
+  document.getElementById('st-total').textContent=s.total??'—';
+  document.getElementById('st-active').textContent=s.active??'—';
+  document.getElementById('st-pending').textContent=s.pending??'—';
+  document.getElementById('st-disabled').textContent=s.disabled??'—';
+}
+async function refreshStats(){ const r=await api('/api/admin/stats'); if(r.success) updateStats(r.stats); }
+
+// ─── FILES ───
+async function loadFiles(){
+  const r=await api('/api/admin/files');
+  allFiles=r.files||[];
+  document.getElementById('fc').textContent=allFiles.length;
+  renderFiles();
+  renderDashFiles();
 }
 
-function renderTable() {
-  const filtered = currentFilter === 'all' ? allKeys : allKeys.filter(k => k.status === currentFilter);
-  const tbody = document.getElementById('keys-table');
+function setFFilter(f,btn){ fFilter=f; document.querySelectorAll('.filters .fbtn').forEach(b=>b.classList.remove('on')); btn.classList.add('on'); renderFiles(); }
 
-  if (!filtered.length) {
-    tbody.innerHTML = `<tr><td colspan="6"><div class="empty"><div class="icon">🔍</div>لا توجد أكواد</div></td></tr>`;
-    return;
-  }
-
-  tbody.innerHTML = filtered.map(k => {
-    const exp = k.expires_at ? new Date(k.expires_at).toLocaleDateString('ar') : 'بلا حد';
-    const dev = k.device_id ? k.device_id.substring(0, 12) + '...' : '—';
-    const planAr = { basic: 'أساسي', pro: 'برو', lifetime: 'مدى الحياة' }[k.plan] || k.plan;
-    const isActive = k.status === 'active';
-
-    return `<tr>
-      <td><span class="code-text" onclick="copy('${k.code}')" title="انقر للنسخ">${k.code}</span></td>
-      <td><span class="badge badge-${k.status}">${
-        { active: 'مفعّل', pending: 'انتظار', disabled: 'معطّل' }[k.status] || k.status
-      }</span></td>
-      <td>${planAr}</td>
-      <td style="color:var(--muted);font-size:12px">${dev}</td>
-      <td style="color:var(--muted);font-size:12px">${exp}</td>
-      <td><div class="actions">
-        ${isActive
-          ? `<button class="btn btn-sm btn-red" onclick="disableKey('${k.code}')">تعطيل</button>`
-          : `<button class="btn btn-sm btn-green" onclick="enableKey('${k.code}')">تفعيل</button>`}
-        <button class="btn btn-sm btn-orange" onclick="resetDevice('${k.code}')">ضبط جهاز</button>
-        <button class="btn btn-sm btn-red" onclick="deleteKey('${k.code}')">حذف</button>
-      </div></td>
-    </tr>`;
-  }).join('');
+function renderFiles(){
+  let list=allFiles;
+  if(fFilter==='visible') list=allFiles.filter(f=>f.visible!==false);
+  if(fFilter==='hidden')  list=allFiles.filter(f=>f.visible===false);
+  if(fFilter==='license') list=allFiles.filter(f=>f.requiresLicense);
+  const tbody=document.getElementById('files-tbody');
+  if(!list.length){ tbody.innerHTML='<tr class="empty-row"><td colspan="7">📭 لا توجد ملفات</td></tr>'; return; }
+  tbody.innerHTML=list.map(f=>`<tr>
+    <td><span style="font-family:'Fira Code',monospace;font-size:12px">${f.icon} ${f.originalName.length>22?f.originalName.slice(0,20)+'...':f.originalName}</span></td>
+    <td><span class="badge" style="background:${f.color}18;color:${f.color}">${f.lang}</span></td>
+    <td style="color:var(--mt);font-size:12px">${fmt(f.size)}</td>
+    <td style="font-family:'Fira Code',monospace;color:var(--ac2)">${f.downloads||0}</td>
+    <td style="color:var(--mt);font-size:12px;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${f.description||'—'}</td>
+    <td>
+      <span class="badge ${f.visible===false?'b-hid':'b-vis'}">${f.visible===false?'مخفي':'ظاهر'}</span>
+      ${f.requiresLicense?'<span class="badge b-pe" style="margin-right:4px">🔐 ترخيص</span>':''}
+    </td>
+    <td><div class="act-row">
+      <button class="btn btn-sm btn-or" onclick="openEdit('${f.id}')">✏️ تعديل</button>
+      <button class="btn btn-sm ${f.visible===false?'btn-gn':'btn-gray'}" onclick="toggleVis('${f.id}',${!f.visible})">${f.visible===false?'👁 إظهار':'🙈 إخفاء'}</button>
+      <button class="btn btn-sm btn-rd" onclick="delFile('${f.id}')">🗑 حذف</button>
+    </div></td>
+  </tr>`).join('');
 }
 
-async function generateCodes() {
-  const count = parseInt(document.getElementById('gen-count').value) || 1;
-  const plan = document.getElementById('gen-plan').value;
-  const days = document.getElementById('gen-days').value || null;
+function renderDashFiles(){
+  const list=allFiles.slice(0,6);
+  const tbody=document.getElementById('dash-files');
+  if(!list.length){ tbody.innerHTML='<tr class="empty-row"><td colspan="4">لا توجد ملفات</td></tr>'; return; }
+  tbody.innerHTML=list.map(f=>`<tr>
+    <td style="font-family:'Fira Code',monospace;font-size:12px">${f.icon} ${f.originalName}</td>
+    <td><span class="badge" style="background:${f.color}18;color:${f.color}">${f.lang}</span></td>
+    <td style="color:var(--ac2);font-family:'Fira Code',monospace">${f.downloads||0}</td>
+    <td><span class="badge ${f.visible===false?'b-hid':'b-vis'}">${f.visible===false?'مخفي':'ظاهر'}</span></td>
+  </tr>`).join('');
+}
 
-  const r = await api('/api/admin/generate', 'POST', {
-    count, plan,
-    days: days ? parseInt(days) : null
+async function toggleVis(id,vis){
+  await api(`/api/admin/files/${id}/update`,'POST',{visible:vis});
+  toast(vis?'👁 تم الإظهار':'🙈 تم الإخفاء');
+  loadFiles(); refreshStats();
+}
+
+async function delFile(id){
+  if(!confirm('هل تريد حذف هذا الملف نهائياً؟')) return;
+  await api(`/api/admin/files/${id}`,'DELETE');
+  toast('🗑 تم الحذف'); loadFiles(); refreshStats();
+}
+
+function openEdit(id){
+  const f=allFiles.find(f=>f.id===id); if(!f) return;
+  document.getElementById('edit-id').value=id;
+  document.getElementById('edit-desc').value=f.description||'';
+  document.getElementById('edit-name').value=f.originalName||'';
+  document.getElementById('edit-vis').checked=f.visible!==false;
+  document.getElementById('edit-lic').checked=!!f.requiresLicense;
+  document.getElementById('edit-modal').classList.add('open');
+}
+function closeEdit(){ document.getElementById('edit-modal').classList.remove('open'); }
+async function saveEdit(){
+  const id=document.getElementById('edit-id').value;
+  await api(`/api/admin/files/${id}/update`,'POST',{
+    description:document.getElementById('edit-desc').value,
+    originalName:document.getElementById('edit-name').value,
+    visible:document.getElementById('edit-vis').checked,
+    requiresLicense:document.getElementById('edit-lic').checked,
   });
+  toast('✅ تم الحفظ'); closeEdit(); loadFiles();
+}
 
-  if (!r.success) return;
+// ─── UPLOAD ───
+let selectedFile=null;
+const detExt=n=>{const e=n.split('.').pop().toLowerCase();const m={py:'Python',js:'JavaScript',ts:'TypeScript',tsx:'React TSX',jsx:'React JSX',cpp:'C++',c:'C',java:'Java',kt:'Kotlin',swift:'Swift',rs:'Rust',go:'Go',rb:'Ruby',php:'PHP',html:'HTML',css:'CSS',sql:'SQL',sh:'Shell',dart:'Dart',json:'JSON',xml:'XML',md:'Markdown',cs:'C#',vue:'Vue.js',apk:'Android APK',zip:'ZIP'};const i={py:'🐍',js:'🟨',ts:'🔷',tsx:'⚛️',jsx:'⚛️',cpp:'⚙️',c:'🔧',java:'☕',kt:'🟣',swift:'🍎',rs:'🦀',go:'🐹',rb:'💎',php:'🐘',html:'🌐',css:'🎨',sql:'🗄️',sh:'🖥️',dart:'🐦',json:'📄',xml:'📑',md:'📝',cs:'🔵',vue:'💚',apk:'🤖',zip:'📦'};return{lang:m[e]||e.toUpperCase()||'Unknown',icon:i[e]||'📄'};};
 
-  generatedCodes = r.codes;
-  const container = document.getElementById('modal-codes');
-  container.innerHTML = r.codes.map(c => `
+function pickFile(input){
+  selectedFile=input.files[0]; if(!selectedFile) return;
+  const {lang,icon}=detExt(selectedFile.name);
+  document.getElementById('fp').style.display='flex';
+  document.getElementById('fp').innerHTML=`<div class="file-preview"><div class="fp-icon">${icon}</div><div class="fp-info"><div class="fp-name">${selectedFile.name}</div><div class="fp-lang">${lang} · ${fmt(selectedFile.size)}</div></div></div>`;
+}
+
+const dz=document.getElementById('dz');
+dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('over');});
+dz.addEventListener('dragleave',()=>dz.classList.remove('over'));
+dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('over');document.getElementById('fi').files=e.dataTransfer.files;pickFile(document.getElementById('fi'));});
+
+async function uploadFile(){
+  if(!selectedFile){ toast('❌ اختر ملفاً أولاً'); return; }
+  const btn=document.getElementById('up-btn');
+  btn.textContent='⏳ جاري الرفع...'; btn.disabled=true;
+  const fd=new FormData();
+  fd.append('file',selectedFile);
+  fd.append('description',document.getElementById('up-desc').value);
+  fd.append('requiresLicense',document.getElementById('up-lic').checked);
+  try{
+    const r=await fetch('/api/admin/upload',{method:'POST',headers:{'x-admin-secret':SECRET},body:fd});
+    const d=await r.json();
+    if(d.success){ toast('✅ تم رفع الملف بنجاح!'); selectedFile=null; document.getElementById('fp').style.display='none'; document.getElementById('up-desc').value=''; document.getElementById('up-lic').checked=false; document.getElementById('fi').value=''; refreshStats(); }
+    else toast('❌ '+d.message);
+  }catch{ toast('❌ خطأ في الرفع'); }
+  btn.textContent='⬆ رفع الملف'; btn.disabled=false;
+}
+
+// ─── LICENSES ───
+async function loadKeys(){
+  const r=await api('/api/admin/keys');
+  allKeys=r.keys||[];
+  document.getElementById('kc').textContent=allKeys.length;
+  renderKeys();
+}
+function setKFilter(f,btn){ kFilter=f; document.querySelectorAll('#page-licenses .filters .fbtn').forEach(b=>b.classList.remove('on')); btn.classList.add('on'); renderKeys(); }
+function renderKeys(){
+  let list=kFilter==='all'?allKeys:allKeys.filter(k=>k.status===kFilter);
+  const tbody=document.getElementById('keys-tbody');
+  if(!list.length){ tbody.innerHTML='<tr class="empty-row"><td colspan="6">🔍 لا توجد أكواد</td></tr>'; return; }
+  tbody.innerHTML=list.map(k=>`<tr>
+    <td><span class="code-txt" onclick="copy('${k.code}')" title="انقر للنسخ">${k.code}</span></td>
+    <td><span class="badge ${k.status==='active'?'b-ac':k.status==='pending'?'b-pe':'b-di'}">${{active:'مفعّل',pending:'انتظار',disabled:'معطّل'}[k.status]||k.status}</span></td>
+    <td style="color:var(--mt);font-size:12px">{{basic:'أساسي',pro:'برو',lifetime:'مدى الحياة'}[k.plan]||k.plan}</td>
+    <td style="color:var(--mt);font-family:'Fira Code',monospace;font-size:11px">${k.device_id?k.device_id.slice(0,14)+'...':'—'}</td>
+    <td style="color:var(--mt);font-size:12px">${k.expires_at?new Date(k.expires_at).toLocaleDateString('ar'):'بلا حد'}</td>
+    <td><div class="act-row">
+      ${k.status==='active'?`<button class="btn btn-sm btn-rd" onclick="disK('${k.code}')">تعطيل</button>`:`<button class="btn btn-sm btn-gn" onclick="enK('${k.code}')">تفعيل</button>`}
+      <button class="btn btn-sm btn-or" onclick="rstK('${k.code}')">ضبط جهاز</button>
+      <button class="btn btn-sm btn-rd" onclick="delK('${k.code}')">حذف</button>
+    </div></td>
+  </tr>`).join('').replace(/{{/g,'{').replace(/}}/g,'}');
+}
+
+async function genCodes(){
+  const count=parseInt(document.getElementById('gc').value)||1;
+  const plan=document.getElementById('gp').value;
+  const days=document.getElementById('gd').value||null;
+  const r=await api('/api/admin/generate','POST',{count,plan,days:days?parseInt(days):null});
+  if(!r.success){toast('❌ فشل الإنشاء');return;}
+  genCodes_list=r.codes;
+  document.getElementById('modal-codes').innerHTML=r.codes.map(c=>`
     <div class="code-item" onclick="copy('${c.code}')">
       <span class="c">🔑 ${c.code}</span>
       <span class="hint">انقر للنسخ 📋</span>
-    </div>
-  `).join('');
-
-  document.getElementById('modal').classList.add('show');
-  loadAll();
+    </div>`).join('');
+  document.getElementById('codes-modal').classList.add('open');
+  loadKeys(); refreshStats();
 }
+function copyAllCodes(){ navigator.clipboard.writeText(genCodes_list.map(c=>c.code).join('\n')); toast('📋 تم نسخ الكل'); }
+function closeCodes(){ document.getElementById('codes-modal').classList.remove('open'); }
 
-function copyAll() {
-  const text = generatedCodes.map(c => c.code).join('\n');
-  navigator.clipboard.writeText(text);
-  showToast('تم نسخ الكل 📋');
+async function disK(c){ await api('/api/admin/disable','POST',{key:c}); toast('🚫 تم التعطيل'); loadKeys(); refreshStats(); }
+async function enK(c){  await api('/api/admin/enable', 'POST',{key:c}); toast('✅ تم التفعيل'); loadKeys(); refreshStats(); }
+async function rstK(c){ if(!confirm('إعادة ضبط الجهاز؟')) return; await api('/api/admin/reset-device','POST',{key:c}); toast('🔄 تم الضبط'); loadKeys(); }
+async function delK(c){ if(!confirm('حذف الكود نهائياً؟')) return; await api('/api/admin/delete','POST',{key:c}); toast('🗑 تم الحذف'); loadKeys(); refreshStats(); }
+
+// ─── UTILS ───
+function fmt(b){ if(b<1024) return b+'B'; if(b<1048576) return (b/1024).toFixed(1)+'KB'; return (b/1048576).toFixed(1)+'MB'; }
+function copy(t){ navigator.clipboard.writeText(t); toast('📋 تم النسخ'); }
+function toast(msg,col='var(--ac)'){
+  const t=document.getElementById('toast'); t.textContent=msg; t.style.color=col; t.style.borderColor=col; t.classList.add('show');
+  clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),2800);
 }
-
-async function disableKey(code) {
-  await api('/api/admin/disable', 'POST', { key: code });
-  showToast('تم تعطيل الكود 🚫');
-  loadAll();
-}
-
-async function enableKey(code) {
-  await api('/api/admin/enable', 'POST', { key: code });
-  showToast('تم تفعيل الكود ✅');
-  loadAll();
-}
-
-async function resetDevice(code) {
-  if (!confirm('هل تريد إعادة ضبط الجهاز؟')) return;
-  await api('/api/admin/reset-device', 'POST', { key: code });
-  showToast('تم إعادة ضبط الجهاز 🔄');
-  loadAll();
-}
-
-async function deleteKey(code) {
-  if (!confirm('هل تريد حذف هذا الكود نهائياً؟')) return;
-  await api('/api/admin/delete', 'POST', { key: code });
-  showToast('تم الحذف 🗑️');
-  loadAll();
-}
-
-function copy(text) {
-  navigator.clipboard.writeText(text);
-  showToast('تم النسخ 📋');
-}
-
-function closeModal() { document.getElementById('modal').classList.remove('show'); }
-
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2500);
-}
-
-document.getElementById('secret-input').addEventListener('keydown', e => {
-  if (e.key === 'Enter') doLogin();
-});
+document.querySelectorAll('.moverlay').forEach(m=>m.addEventListener('click',e=>{ if(e.target===m) m.classList.remove('open'); }));
 </script>
 </body>
 </html>
